@@ -48,7 +48,7 @@
       Block #{currentBlockNumber}
     {/if}
   </div>
-  <h1>Tacos EVM Token</h1>
+  <h1>TACO Token</h1>
   <div>
     {#if userAddress && userEthBalance}
       <button class="default">

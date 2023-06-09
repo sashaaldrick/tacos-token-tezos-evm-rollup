@@ -1,8 +1,9 @@
 <script lang="ts">
-  import { afterUpdate } from "svelte";
+  import { onMount, afterUpdate } from "svelte";
   import {
     ethers,
     formatUnits,
+    parseUnits,
     type BrowserProvider,
     type BigNumberish
   } from "ethers";
@@ -12,6 +13,47 @@
   export let userAddress: undefined | string, provider: BrowserProvider;
 
   let userBalance: undefined | BigNumberish = undefined;
+  let contract: ethers.Contract;
+  let transferAmount: string | null = null;
+  let transferTo: string | null = null;
+
+  const claim = async () => {
+    try {
+      const tx = await contract.claim();
+      const receipt = await tx.wait();
+      console.log(receipt);
+      // receipt.status = 0 -> error
+      // receipt.status = 1 -> confirmed
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  const transfer = async () => {
+    try {
+      if (!transferAmount) throw "No amount";
+      if (!transferTo) throw "No recipient";
+
+      const amountToTransfer = parseUnits(transferAmount, config.decimals);
+      const tx = await contract.transfer(transferTo, amountToTransfer);
+      const receipt = await tx.wait();
+      console.log(receipt);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  onMount(async () => {
+    // creates the instance of the contract
+    if (!contract) {
+      const signer = await provider.getSigner();
+      contract = new ethers.Contract(
+        config.contractAddress,
+        config.contractAbi,
+        signer
+      );
+    }
+  });
 
   afterUpdate(async () => {
     // if the user is connected, checks their balance
@@ -22,7 +64,6 @@
         provider
       );
       const balance = await contract.balanceOf(userAddress);
-      console.log(balance);
       if (balance) {
         userBalance = balance;
       } else {
@@ -59,10 +100,17 @@
 
     .user-balance {
       border-radius: 5px;
-      background-color: #0f61ff;
+      background-color: #9f329f;
       color: white;
       font-size: 1.1rem;
       padding: 10px;
+    }
+
+    .transfer-input {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 10px;
     }
   }
 
@@ -109,22 +157,36 @@
     <img src={tacoLogo} alt="taco-logo" />
   </div>
   <div class="description">
-    <p>Welcome to the Tacos EVM Token!</p>
+    <p>Welcome to the TACO EVM Token!</p>
     <p>
       This is a the first token to be built in an EVM rollup deployed on the
       Tezos blockchain.
     </p>
     <p>
-      The Tacos Token is a standard ERC-20 token, now made better by managing it
+      The TACO Token is a standard ERC-20 token, now made better by managing it
       in a Tezos smart rollup.
     </p>
     {#if userBalance}
       <p class="user-balance">
         Your current balance is {formatUnits(userBalance, config.decimals)}
       </p>
+      <div class="transfer-input">
+        <input
+          type="text"
+          placeholder="Transfer TAC to"
+          class="address"
+          bind:value={transferTo}
+        />
+        <input
+          type="text"
+          placeholder="Amount of TAC"
+          bind:value={transferAmount}
+        />
+        <button class="blue" on:click={transfer}>Send</button>
+      </div>
     {:else}
       <p>Click the button below to claim your free tokens!</p>
-      <button class="claim">Claim 1,000 TAC</button>
+      <button class="claim" on:click={claim}>Claim 1,000 TAC</button>
     {/if}
   </div>
 </div>

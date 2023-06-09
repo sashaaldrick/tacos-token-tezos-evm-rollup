@@ -58,4 +58,31 @@ button {
       transform: scale(1.2);
     }
   }
+
+  &.blue {
+    border-radius: 5px;
+    background-color: #616f82;
+    color: white;
+    font-size: 1rem;
+
+    &:hover {
+      background-color: #0f61ff;
+    }
+  }
+}
+
+input[type="text"] {
+  border: solid 2px transparent;
+  padding: 5px 10px;
+  outline: none;
+  border-radius: 5px;
+  font-size: inherit;
+
+  &:focus {
+    border-color: #0f61ff;
+  }
+
+  &.address {
+    width: 300px;
+  }
 }
