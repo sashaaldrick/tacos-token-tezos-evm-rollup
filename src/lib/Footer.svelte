@@ -1,5 +1,5 @@
 <script lang="ts">
-  export let evmRollupUrl: string;
+  import config from "../config";
 </script>
 
 <style lang="scss">
@@ -12,13 +12,15 @@
 </style>
 
 <footer>
-  <div>Dapp connected to {evmRollupUrl}</div>
+  <div>Dapp connected to {config.evmRollupUrl()}</div>
   <div>
-    Made in
+    Made at
     <a
       href="https://www.trili.tech"
       target="_blank"
-      rel="noopener noreferrer nofollow">TriliTech</a
+      rel="noopener noreferrer nofollow"
     >
+      TriliTech
+    </a>
   </div>
 </footer>

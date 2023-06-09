@@ -1,6 +1,35 @@
 <script lang="ts">
+  import { afterUpdate } from "svelte";
+  import {
+    ethers,
+    formatUnits,
+    type BrowserProvider,
+    type BigNumberish
+  } from "ethers";
   import tacoLogo from "../../public/taco-tezos-blue.jpg";
-  import abi from "../assets/abi.json";
+  import config from "../config";
+
+  export let userAddress: undefined | string, provider: BrowserProvider;
+
+  let userBalance: undefined | BigNumberish = undefined;
+
+  afterUpdate(async () => {
+    // if the user is connected, checks their balance
+    if (userAddress) {
+      const contract = new ethers.Contract(
+        config.contractAddress,
+        config.contractAbi,
+        provider
+      );
+      const balance = await contract.balanceOf(userAddress);
+      console.log(balance);
+      if (balance) {
+        userBalance = balance;
+      } else {
+        userBalance = undefined;
+      }
+    }
+  });
 </script>
 
 <style lang="scss">
@@ -26,6 +55,14 @@
     .description {
       text-align: center;
       width: 50%;
+    }
+
+    .user-balance {
+      border-radius: 5px;
+      background-color: #0f61ff;
+      color: white;
+      font-size: 1.1rem;
+      padding: 10px;
     }
   }
 
@@ -81,7 +118,13 @@
       The Tacos Token is a standard ERC-20 token, now made better by managing it
       in a Tezos smart rollup.
     </p>
-    <p>Click the button below to claim your free tokens!</p>
-    <button class="claim">Claim 1,000 TAC</button>
+    {#if userBalance}
+      <p class="user-balance">
+        Your current balance is {formatUnits(userBalance, config.decimals)}
+      </p>
+    {:else}
+      <p>Click the button below to claim your free tokens!</p>
+      <button class="claim">Claim 1,000 TAC</button>
+    {/if}
   </div>
 </div>

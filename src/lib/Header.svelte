@@ -1,10 +1,12 @@
 <script lang="ts">
   import { onMount, createEventDispatcher } from "svelte";
-  import { type BrowserProvider } from "ethers";
+  import { formatEther, type BrowserProvider, type BigNumberish } from "ethers";
+  import config from "../config";
 
   export let currentBlockNumber: number,
     provider: BrowserProvider,
-    userAddress: undefined | string;
+    userAddress: undefined | string,
+    userEthBalance: undefined | BigNumberish;
   const dispatch = createEventDispatcher();
 
   const connect = async () => {
@@ -48,9 +50,11 @@
   </div>
   <h1>Tacos EVM Token</h1>
   <div>
-    {#if userAddress}
+    {#if userAddress && userEthBalance}
       <button class="default">
-        {userAddress.slice(0, 7)}...{userAddress.slice(-7)}
+        {userAddress.slice(0, 7)}...{userAddress.slice(-7)} | {config.formatBalance(
+          formatEther(userEthBalance)
+        )} ETH
       </button>
     {:else}
       <button class="default" on:click={connect}> Connect wallet </button>
