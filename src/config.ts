@@ -26,7 +26,7 @@ export default {
   chainId: "0x13881",
   chainName: "Polygon Mumbai",
   evmRollupUrl: () => "https://polygon-testnet.public.blastapi.io",
-  contractAddress: "0x9dD7efBfB908c3f8A96776390D186195bc5b9bD3",
+  contractAddress: "0xf8e81D47203A594245E36C48e151709F0C19fBe8",
   contractAbi: abi,
   decimals: 18,
   formatBalance: (balance: string): string => {
@@ -40,5 +40,3 @@ export default {
     }
   }
 };
-
-// 0x5057FcAAF167Dae242866b56136BA682F6e6a529

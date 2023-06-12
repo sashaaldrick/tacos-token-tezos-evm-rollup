@@ -15,6 +15,7 @@
   let provider: BrowserProvider;
   let userAddress: undefined | string = undefined;
   let userEthBalance: undefined | BigNumberish = undefined;
+  let hasClaimed: undefined | boolean = undefined;
 
   const getUserEthBalance = async userAddress => {
     const balance = await provider.getBalance(userAddress);
@@ -76,6 +77,17 @@
   afterUpdate(async () => {
     if (provider && userAddress) {
       userEthBalance = await getUserEthBalance(userAddress);
+      // fetches token balance
+      const contract = new ethers.Contract(
+        config.contractAddress,
+        config.contractAbi,
+        provider
+      );
+      if (hasClaimed === undefined) {
+        const claimed = await contract.claimed(userAddress);
+        console.log({ claimed });
+        hasClaimed = false;
+      }
     }
   });
 </script>
