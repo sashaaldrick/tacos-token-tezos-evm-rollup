@@ -9,6 +9,7 @@
   } from "ethers";
   import tacoLogo from "../../public/taco-tezos-blue.jpg";
   import config from "../config";
+  import Modal from "./Modal.svelte";
 
   export let userAddress: undefined | string, provider: BrowserProvider;
 
@@ -16,6 +17,17 @@
   let contract: ethers.Contract;
   let transferAmount: string | null = null;
   let transferTo: string | null = null;
+  let isTransferring = false;
+  let showModal = false;
+  let modalText = "No text";
+
+  const handleModal = (text: string) => {
+    showModal = true;
+    modalText = text;
+    setTimeout(() => {
+      showModal = false;
+    }, 3_000);
+  };
 
   const claim = async () => {
     try {
@@ -30,16 +42,27 @@
   };
 
   const transfer = async () => {
+    isTransferring = true;
     try {
       if (!transferAmount) throw "No amount";
       if (!transferTo) throw "No recipient";
 
       const amountToTransfer = parseUnits(transferAmount, config.decimals);
       const tx = await contract.transfer(transferTo, amountToTransfer);
+      handleModal("Processing transfer...");
       const receipt = await tx.wait();
-      console.log(receipt);
+      if (receipt.status === 1) {
+        handleModal("Transfer confirmed!");
+        transferAmount = null;
+        transferTo = null;
+      } else {
+        handleModal("An error has occurred");
+      }
     } catch (error) {
       console.error(error);
+      handleModal("An error has occurred");
+    } finally {
+      isTransferring = false;
     }
   };
 
@@ -166,27 +189,38 @@
       The TACO Token is a standard ERC-20 token, now made better by managing it
       in a Tezos smart rollup.
     </p>
-    {#if userBalance}
+    {#if userBalance && userAddress}
       <p class="user-balance">
         Your current balance is {formatUnits(userBalance, config.decimals)}
       </p>
       <div class="transfer-input">
         <input
           type="text"
-          placeholder="Transfer TAC to"
+          placeholder="Transfer TACO to"
           class="address"
           bind:value={transferTo}
+          disabled={isTransferring}
         />
         <input
           type="text"
-          placeholder="Amount of TAC"
+          placeholder="Amount of TACO"
           bind:value={transferAmount}
+          disabled={isTransferring}
         />
-        <button class="blue" on:click={transfer}>Send</button>
+        <button class="blue" disabled={isTransferring} on:click={transfer}>
+          {#if isTransferring}
+            Sending...
+          {:else}
+            Send
+          {/if}
+        </button>
       </div>
-    {:else}
+    {:else if !userBalance && userAddress}
       <p>Click the button below to claim your free tokens!</p>
       <button class="claim" on:click={claim}>Claim 1,000 TAC</button>
+    {:else}
+      <p>Please connect your wallet to continue</p>
     {/if}
   </div>
 </div>
+<Modal show={showModal} text={modalText} />

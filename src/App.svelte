@@ -2,8 +2,8 @@
   import { onMount, afterUpdate } from "svelte";
   import {
     ethers,
-    formatEther,
     type BrowserProvider,
+    type JsonRpcProvider,
     type BigNumberish
   } from "ethers";
   import Header from "./lib/Header.svelte";
@@ -16,8 +16,17 @@
   let userAddress: undefined | string = undefined;
   let userEthBalance: undefined | BigNumberish = undefined;
 
+  const getUserEthBalance = async userAddress => {
+    const balance = await provider.getBalance(userAddress);
+    if (balance || balance === 0n) {
+      return balance;
+    } else {
+      return undefined;
+    }
+  };
+
   onMount(async () => {
-    // const provider = new ethers.JsonRpcProvider(evmRollupUrl());
+    // provider = new ethers.JsonRpcProvider(config.evmRollupUrl());
     provider = new ethers.BrowserProvider((window as any).ethereum);
     const chainId = await (window as any).ethereum.request({
       method: "eth_chainId"
@@ -29,7 +38,7 @@
         currentBlockNumber = block;
       });
     } else {
-      console.log(`Wrong chain id! Expected 1337, got ${chainId}`);
+      console.log(`Wrong chain id! Expected ${config.chainId}, got ${chainId}`);
       // adding dailynet network to MetaMask
       try {
         await (window as any).ethereum.request({
@@ -50,16 +59,23 @@
         console.log(addError);
       }
     }
+
+    (window as any).ethereum.on("accountsChanged", async accounts => {
+      if (Array.isArray(accounts) && accounts.length === 0) {
+        // user is disconnected
+        userAddress = undefined;
+        userEthBalance = undefined;
+      } else if (Array.isArray(accounts) && accounts.length > 0) {
+        // user is connected
+        userAddress = accounts[0];
+        userEthBalance = await getUserEthBalance(userAddress);
+      }
+    });
   });
 
   afterUpdate(async () => {
     if (provider && userAddress) {
-      const balance = await provider.getBalance(userAddress);
-      if (balance) {
-        userEthBalance = balance;
-      } else {
-        userEthBalance = undefined;
-      }
+      userEthBalance = await getUserEthBalance(userAddress);
     }
   });
 </script>

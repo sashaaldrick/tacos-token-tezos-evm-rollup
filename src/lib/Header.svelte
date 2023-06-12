@@ -50,9 +50,9 @@
   </div>
   <h1>TACO Token</h1>
   <div>
-    {#if userAddress && userEthBalance}
+    {#if userAddress && userEthBalance !== undefined}
       <button class="default">
-        {userAddress.slice(0, 7)}...{userAddress.slice(-7)} | {config.formatBalance(
+        {userAddress.slice(0, 7)}...{userAddress.slice(-5)} | {config.formatBalance(
           formatEther(userEthBalance)
         )} ETH
       </button>
