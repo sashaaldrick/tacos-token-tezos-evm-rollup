@@ -7,17 +7,20 @@
     type BrowserProvider,
     type BigNumberish
   } from "ethers";
-  import tacoLogo from "../../public/taco-tezos-blue.jpg";
+  import tacoLogo from "/taco-tezos-blue.jpg";
   import config from "../config";
   import Modal from "./Modal.svelte";
 
-  export let userAddress: undefined | string, provider: BrowserProvider;
+  export let userAddress: undefined | string,
+    provider: BrowserProvider,
+    hasClaimed: boolean;
 
   let userBalance: undefined | BigNumberish = undefined;
   let contract: ethers.Contract;
   let transferAmount: string | null = null;
   let transferTo: string | null = null;
   let isTransferring = false;
+  let isClaiming = false;
   let showModal = false;
   let modalText = "No text";
 
@@ -30,14 +33,24 @@
   };
 
   const claim = async () => {
+    isClaiming = true;
     try {
       const tx = await contract.claim();
+      handleModal("Claiming your tokens...");
       const receipt = await tx.wait();
       console.log(receipt);
       // receipt.status = 0 -> error
       // receipt.status = 1 -> confirmed
+      if (receipt.status === 1) {
+        handleModal("Tokens claimed!");
+      } else {
+        handleModal("An error has occurred");
+      }
     } catch (error) {
       console.error(error);
+      handleModal("An error has occurred");
+    } finally {
+      isClaiming = true;
     }
   };
 
@@ -189,7 +202,7 @@
       The TACO Token is a standard ERC-20 token, now made better by managing it
       in a Tezos smart rollup.
     </p>
-    {#if userBalance && userAddress}
+    {#if userBalance && userAddress && hasClaimed}
       <p class="user-balance">
         Your current balance is {formatUnits(userBalance, config.decimals)}
       </p>
@@ -215,11 +228,20 @@
           {/if}
         </button>
       </div>
-    {:else if !userBalance && userAddress}
-      <p>Click the button below to claim your free tokens!</p>
-      <button class="claim" on:click={claim}>Claim 1,000 TAC</button>
-    {:else}
+    {:else if !userBalance && userAddress && !hasClaimed}
+      <div>
+        {#if isClaiming}
+          <p>Please wait</p>
+          <button class="claim">Claiming 1,000 TAC...</button>
+        {:else}
+          <p>Click the button below to claim your free tokens!</p>
+          <button class="claim" on:click={claim}>Claim 1,000 TAC</button>
+        {/if}
+      </div>
+    {:else if !userBalance && !userAddress}
       <p>Please connect your wallet to continue</p>
+    {:else}
+      <p>Loading...</p>
     {/if}
   </div>
 </div>

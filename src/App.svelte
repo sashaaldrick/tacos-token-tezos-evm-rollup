@@ -26,6 +26,16 @@
     }
   };
 
+  const hasUserClaimedTokens = async userAddress => {
+    // fetches token balance
+    const contract = new ethers.Contract(
+      config.contractAddress,
+      config.contractAbi,
+      provider
+    );
+    return await contract.claimed(userAddress);
+  };
+
   onMount(async () => {
     // provider = new ethers.JsonRpcProvider(config.evmRollupUrl());
     provider = new ethers.BrowserProvider((window as any).ethereum);
@@ -70,6 +80,7 @@
         // user is connected
         userAddress = accounts[0];
         userEthBalance = await getUserEthBalance(userAddress);
+        hasClaimed = await hasUserClaimedTokens(userAddress);
       }
     });
   });
@@ -77,17 +88,7 @@
   afterUpdate(async () => {
     if (provider && userAddress) {
       userEthBalance = await getUserEthBalance(userAddress);
-      // fetches token balance
-      const contract = new ethers.Contract(
-        config.contractAddress,
-        config.contractAbi,
-        provider
-      );
-      if (hasClaimed === undefined) {
-        const claimed = await contract.claimed(userAddress);
-        console.log({ claimed });
-        hasClaimed = false;
-      }
+      hasClaimed = await hasUserClaimedTokens(userAddress);
     }
   });
 </script>
@@ -101,7 +102,7 @@
       {userEthBalance}
       on:user-address={event => (userAddress = event.detail)}
     />
-    <Body {userAddress} {provider} />
+    <Body {userAddress} {provider} {hasClaimed} />
     <Footer />
   {:else}
     <div>Loading...</div>

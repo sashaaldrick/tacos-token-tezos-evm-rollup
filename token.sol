@@ -6,7 +6,7 @@ import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 
 contract TacoToken is ERC20 {
     address public admin;
-    mapping (address => bool) claimed;
+    mapping (address => bool) public claimed;
 
     constructor(uint256 initialSupply) ERC20("Taco", "TACO") {
         admin = msg.sender;
