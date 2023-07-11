@@ -54,7 +54,7 @@
       <button class="default">
         {userAddress.slice(0, 7)}...{userAddress.slice(-5)} | {config.formatBalance(
           formatEther(userEthBalance)
-        )} ETH
+        )} Ctez
       </button>
     {:else}
       <button class="default" on:click={connect}> Connect wallet </button>

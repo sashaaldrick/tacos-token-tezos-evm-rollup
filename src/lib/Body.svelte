@@ -43,6 +43,10 @@
       // receipt.status = 1 -> confirmed
       if (receipt.status === 1) {
         handleModal("Tokens claimed!");
+        // updates the balance
+        userBalance =
+          BigInt(userBalance ? userBalance : 0) +
+          BigInt(1000000000000000000000);
       } else {
         handleModal("An error has occurred");
       }
@@ -68,6 +72,7 @@
         handleModal("Transfer confirmed!");
         transferAmount = null;
         transferTo = null;
+        userBalance = BigInt(userBalance) - amountToTransfer;
       } else {
         handleModal("An error has occurred");
       }
@@ -202,7 +207,7 @@
       The TACO Token is a standard ERC-20 token, now made better by managing it
       in a Tezos smart rollup.
     </p>
-    {#if userBalance && userAddress && hasClaimed}
+    {#if userBalance && userAddress}
       <p class="user-balance">
         Your current balance is {formatUnits(userBalance, config.decimals)}
       </p>
@@ -228,7 +233,8 @@
           {/if}
         </button>
       </div>
-    {:else if !userBalance && userAddress && !hasClaimed}
+    {/if}
+    {#if userAddress && !hasClaimed}
       <div>
         {#if isClaiming}
           <p>Please wait</p>
@@ -238,10 +244,8 @@
           <button class="claim" on:click={claim}>Claim 1,000 TAC</button>
         {/if}
       </div>
-    {:else if !userBalance && !userAddress}
+    {:else if !userAddress}
       <p>Please connect your wallet to continue</p>
-    {:else}
-      <p>Loading...</p>
     {/if}
   </div>
 </div>
