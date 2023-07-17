@@ -60,7 +60,7 @@
               chainName: config.chainName,
               rpcUrls: [config.evmRollupUrl()],
               nativeCurrency: {
-                symbol: "ETH",
+                symbol: "Ctez",
                 decimals: 18
               }
             }
