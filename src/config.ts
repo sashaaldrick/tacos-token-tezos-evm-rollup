@@ -1,14 +1,14 @@
 import abi from "./assets/abi.json";
 
 export default {
-  chainId: "0x539",
+  chainId: "0x1f47b",
   chainName: "Tezos EVM",
   // evmRollupUrl: () => {
   //   const date = new Date().toJSON().slice(0, 10);
   //   return `https://evm.dailynet-${date}.teztnets.xyz/`;
   // },
   evmRollupUrl: () => `https://evm.ghostnet-evm.tzalpha.net/`,
-  contractAddress: "0x493F13225B258696431Cce7686F19704C550d61B",
+  contractAddress: "0x4A0225335fBBE8dC67F4487992df5d966a932575",
   contractAbi: abi,
   decimals: 18,
   formatBalance: (balance: string): string => {
