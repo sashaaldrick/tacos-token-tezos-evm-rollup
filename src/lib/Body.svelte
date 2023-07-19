@@ -200,12 +200,12 @@
   <div class="description">
     <p>Welcome to the TACO EVM Token!</p>
     <p>
-      This is a the first token to be built in an EVM rollup deployed on the
-      Tezos blockchain.
+      This is the first token to be built in an EVM rollup deployed on the Tezos
+      blockchain.
     </p>
     <p>
-      The TACO Token is a standard ERC-20 token, now made better by managing it
-      in a Tezos smart rollup.
+      The TACO Token is a standard ERC-20 token, made even better by our Tezos
+      EVM rollup.
     </p>
     {#if userBalance && userAddress}
       <p class="user-balance">
