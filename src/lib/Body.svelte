@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { onMount, afterUpdate } from "svelte";
+  import { onMount, createEventDispatcher, afterUpdate } from "svelte";
   import {
     ethers,
     formatUnits,
@@ -30,6 +30,35 @@
     setTimeout(() => {
       showModal = false;
     }, 3_000);
+  };
+
+  const claimFaucet = async () => {
+    isClaiming = true;
+    try {
+      const response = await fetch('/functions/transfer', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ targetAddress: userAddress })
+      });
+
+      const data = await response.json();
+      if(response.ok) {
+        handleModal("Tokens claimed!");
+        // updates the balance
+        userBalance =
+          BigInt(userBalance ? userBalance : 0) +
+          BigInt(1000000000000000000000);
+      } else {
+        handleModal(data.error);
+      }
+    } catch (error) {
+      console.error(error);
+      handleModal("An error has occurred");
+    } finally {
+      isClaiming = false;
+    }
   };
 
   const claim = async () => {
@@ -247,6 +276,14 @@
     {:else if !userAddress}
       <p>Please connect your wallet to continue</p>
     {/if}
+  </div>
+  <div>
+    <h2> CTez Faucet </h2>
+    <form on:submit|preventDefault={claimFaucet}>
+      <label for="wallet-address">Your Wallet Address:</label>
+      <input id="wallet-address" bind:value={userAddress} placeholder="Enter your wallet address" required />
+      <button type="submit">Claim</button>
+    </form>
   </div>
 </div>
 <Modal show={showModal} text={modalText} />
