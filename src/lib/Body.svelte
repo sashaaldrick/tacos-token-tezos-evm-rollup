@@ -35,7 +35,7 @@
   const claimFaucet = async () => {
     isClaiming = true;
     try {
-      const response = await fetch('/.netlify/functions/transfer', {
+      const response = await fetch('/functions/transfer', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
